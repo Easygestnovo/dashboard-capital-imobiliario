@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Capital Imobiliário</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div id="loginOverlay">
+    <div class="login-box">
+      <img class="login-logo" src="logotipo_capitalimob.png" alt="Capital Imobiliário Investimento" />
+      <h2>Acesso ao Dashboard</h2>
+      <p>Introduza a password para entrar.</p>
+      <input type="password" id="passwordInput" placeholder="Password" />
+      <button id="loginBtn" class="action-btn accent" type="button">Entrar</button>
+      <p id="loginError"></p>
+    </div>
+  </div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img class="sidebar-logo" src="logotipo_capitalimob.png" alt="Capital Imobiliário Investimento" />
+        <div class="sidebar-copy">
+          <span class="sidebar-kicker">Dashboard interno</span>
+          <strong>Capital Imobiliário</strong>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="tab-btn active" data-tab="cronograma">Cronograma</button>
+        <button class="tab-btn" data-tab="indicadores-leads">Indicadores Leads</button>
+        <button class="tab-btn" data-tab="herancas">Heranças</button>
+        <button class="tab-btn" data-tab="processos-executivos">Processos de Executivos</button>
+        <button class="tab-btn" data-tab="duplicacoes">Duplicações</button>
+        <button class="tab-btn" data-tab="campanhas">Campanhas</button>
+        <button class="tab-btn" data-tab="pipeline-etapas">Pipeline / Etapas</button>
+        <button class="tab-btn" data-tab="zonas-geografia">Zonas / Geografia</button>
+        <button class="tab-btn" data-tab="processos-imoveis-arquivo">Processos de Imóveis (arquivo)</button>
+        <button class="tab-btn" data-tab="protocolos-parceiros">Protocolos Parceiros de Negócio</button>
+      </nav>
+    </aside>
+
+    <div class="main-shell">
+      <header class="hero-panel">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="hero-copy">
+            <span class="hero-tag">Leitura automática por Excel</span>
+            <h1>Dashboard Capital Imobiliário</h1>
+            <p>Mantive toda a estrutura técnica, a leitura automática de dados e os separadores já definidos. Nesta versão, o foco foi alinhar o visual com a linguagem do site: preto, laranja, contraste forte e blocos mais limpos.</p>
+            <div class="hero-meta">
+              <span class="meta-pill" id="sourceFile"></span>
+              <span class="meta-pill" id="dateRange"></span>
+            </div>
+          </div>
+          <div class="hero-actions">
+            <button id="btnExportCsv" class="action-btn subtle">Exportar CSV</button>
+            <button id="btnExportXlsx" class="action-btn accent">Exportar Excel</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-stack">
+        
+        <section class="tab-panel active" id="tab-cronograma">
+          <article class="content-card card-dark-head">
+            <div class="card-heading card-heading--split">
+              <div>
+                <div class="section-tag">Estrutura operacional</div>
+                <h2 id="cronogramaPanelTitle">Cronograma Operacional</h2>
+                <p id="cronogramaPanelSubtitle">Leitura dinâmica da primeira sheet do ficheiro de modelo operacional.</p>
+              </div>
+              <div class="source-meta">
+                <span class="mini-pill emphasis">Modelo operacional</span>
+              </div>
+            </div>
+
+            <div class="cronograma-board">
+              <div class="cronograma-header">
+                <div>
+                  <h3 id="cronogramaTitle">Cronograma Operacional</h3>
+                  <p id="cronogramaSubtitle">Vista executiva do modelo de trabalho do Capital Imobiliário.</p>
+                </div>
+                <div class="cronograma-stages-mini" id="cronogramaStagesMini"></div>
+              </div>
+
+              <div class="cronograma-grid" id="cronogramaGrid"></div>
+            </div>
+          </article>
+        </section>
+
+<section class="tab-panel" id="tab-indicadores-leads">
+          <article class="content-card">
+            <div class="card-heading">
+              <div>
+                <div class="section-tag">Separador analítico</div>
+                <h2>Indicadores Leads (Oportunidades de Compra)</h2>
+                <p>Mantive aqui tudo o que já estava feito: filtros, indicadores, campanhas, zonas, equipas, evolução temporal e detalhe operacional.</p>
+              </div>
+            </div>
+
+            <section class="filters-card" id="geral">
+              <div class="filters-grid">
+                <label><span>Ano</span><select id="filterAno"></select></label>
+                <label><span>Mês</span><select id="filterMes"></select></label>
+                <label><span>Estado</span><select id="filterEstado"></select></label>
+                <label><span>Etapa</span><select id="filterEtapa"></select></label>
+                <label><span>Equipa</span><select id="filterEquipa"></select></label>
+                <label><span>SubOrigem</span><select id="filterSubOrigem"></select></label>
+              </div>
+              <div class="filter-actions">
+                <div id="activeFiltersLabel"></div>
+                <button id="btnReset" class="action-btn subtle small">Limpar filtros</button>
+              </div>
+            </section>
+
+            <section class="kpi-grid">
+              <article class="kpi-card"><span>Total de Registos</span><strong id="kpiTotal">0</strong></article>
+              <article class="kpi-card"><span>Ativas</span><strong id="kpiAtivas">0</strong></article>
+              <article class="kpi-card"><span>Perdidas</span><strong id="kpiPerdidas">0</strong></article>
+              <article class="kpi-card"><span>Duplicadas</span><strong id="kpiDuplicadas">0</strong></article>
+              <article class="kpi-card"><span>Campanhas Únicas</span><strong id="kpiCampanhas">0</strong></article>
+              <article class="kpi-card"><span>Zonas Únicas</span><strong id="kpiZonas">0</strong></article>
+            </section>
+
+            <section class="chart-grid two-col">
+              <article class="chart-card"><h3>Distribuição por Mês</h3><div class="canvas-wrap"><canvas id="chartMeses"></canvas></div></article>
+              <article class="chart-card"><h3>Estado da Oportunidade</h3><div class="canvas-wrap"><canvas id="chartEstado"></canvas></div></article>
+            </section>
+
+            <section class="chart-grid two-col">
+              <article class="chart-card"><h3>Top Etapas</h3><div class="canvas-wrap"><canvas id="chartEtapa"></canvas></div></article>
+              <article class="chart-card"><h3>SubOrigem</h3><div class="canvas-wrap"><canvas id="chartSubOrigem"></canvas></div></article>
+            </section>
+
+            <section class="chart-grid two-col">
+              <article class="chart-card"><h3>Campanha Principal</h3><div class="canvas-wrap"><canvas id="chartCampanhas"></canvas></div></article>
+              <article class="chart-card"><h3>Campanhas Repetidas (II-V)</h3><div class="canvas-wrap"><canvas id="chartCampanhasRep"></canvas></div></article>
+            </section>
+
+            <section class="chart-grid two-col">
+              <article class="chart-card"><h3>Equipas</h3><div class="canvas-wrap"><canvas id="chartEquipas"></canvas></div></article>
+              <article class="chart-card"><h3>Top Zonas</h3><div class="canvas-wrap"><canvas id="chartZonas"></canvas></div></article>
+            </section>
+
+            <section class="chart-grid single-col">
+              <article class="chart-card"><h3>Evolução Mensal</h3><div class="canvas-wrap canvas-wrap--short"><canvas id="chartTimeline"></canvas></div></article>
+            </section>
+
+            <section class="table-card" id="detalhe">
+              <div class="table-header">
+                <div>
+                  <h3>Detalhe operacional</h3>
+                  <p>Linhas filtradas a partir das colunas em destaque no Excel.</p>
+                </div>
+                <input id="tableSearch" type="search" placeholder="Pesquisar referência, campanha, zona, etapa..." />
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Referência</th>
+                      <th>Data</th>
+                      <th>Estado</th>
+                      <th>Etapa</th>
+                      <th>SubOrigem</th>
+                      <th>Equipa</th>
+                      <th>Campanhas</th>
+                      <th>Zona</th>
+                    </tr>
+                  </thead>
+                  <tbody id="detailTableBody"></tbody>
+                </table>
+              </div>
+              <div class="table-footer"><span id="tableCount"></span></div>
+            </section>
+          </article>
+        </section>
+
+        <section class="tab-panel" id="tab-herancas">
+          <article class="content-card">
+            <div class="card-heading"><div><div class="section-tag">Separador 3</div><h2>Heranças</h2><p>Separador preparado para métricas e leituras específicas deste universo.</p></div></div>
+            <div class="placeholder-grid">
+              <div class="placeholder-box featured"><span class="placeholder-label">Sinal atual no Excel</span><strong id="countHerancas">0</strong><p>registos associados a campanhas com “Heranças”.</p></div>
+              <div class="placeholder-box"><h3>Próximo passo</h3><p>Definir as variáveis próprias deste separador sem mexer na base já feita.</p></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="tab-panel" id="tab-processos-executivos">
+          <article class="content-card">
+            <div class="card-heading"><div><div class="section-tag">Separador 4</div><h2>Processos de Executivos</h2><p>Posicionado logo após Heranças, conforme pediu.</p></div></div>
+            <div class="placeholder-grid">
+              <div class="placeholder-box featured"><span class="placeholder-label">Sinal atual no Excel</span><strong id="countExecucao">0</strong><p>registos ligados a execução.</p></div>
+              <div class="placeholder-box"><h3>Próximo passo</h3><p>Receber indicadores próprios para acompanhamento desta frente.</p></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="tab-panel" id="tab-duplicacoes">
+          <article class="content-card">
+            <div class="card-heading"><div><div class="section-tag">Separador 5</div><h2>Duplicações</h2><p>Separador dedicado ao controlo de registos duplicados.</p></div></div>
+            <div class="placeholder-grid">
+              <div class="placeholder-box featured"><span class="placeholder-label">Sinal atual no Excel</span><strong id="countDuplicadas">0</strong><p>registos marcados como duplicados.</p></div>
+              <div class="placeholder-box"><h3>Próximo passo</h3><p>Pode evoluir para análise por telefone, email e contacto repetido.</p></div>
+            </div>
+          </article>
+        </section>
+
+        
+        <section class="tab-panel" id="tab-campanhas">
+          <article class="content-card">
+            <div class="card-heading">
+              <div>
+                <div class="section-tag">Separador 6</div>
+                <h2>Campanhas</h2>
+                <p>Leitura estratégica para perceber repetição de leads, sobreposição de campanhas e captação do mesmo cliente em campanhas diferentes.</p>
+              </div>
+            </div>
+
+            <section class="kpi-grid kpi-grid--campaigns">
+              <article class="kpi-card"><span>Leads Duplicadas</span><strong id="kpiDuplicadasCampanhas">0</strong></article>
+              <article class="kpi-card"><span>% Duplicação</span><strong id="kpiPercentDuplicadas">0%</strong></article>
+              <article class="kpi-card"><span>Leads Novos</span><strong id="kpiNovos">0</strong></article>
+              <article class="kpi-card"><span>Campanhas Únicas</span><strong id="countCampanhasTab">0</strong></article>
+            </section>
+
+            <section class="chart-grid two-col">
+              <article class="chart-card">
+                <h3>Origem das Repetições</h3>
+                <p class="chart-subtitle">Campanhas II a V, considerando contactos únicos que voltaram a cair noutras campanhas.</p>
+                <div class="canvas-wrap"><canvas id="chartCampanhasDuplicadas"></canvas></div>
+              </article>
+              <article class="chart-card">
+                <h3>Nível de Repetição por Lead</h3>
+                <p class="chart-subtitle">Número de campanhas adicionais onde o mesmo lead reapareceu.</p>
+                <div class="canvas-wrap"><canvas id="chartNivelRepeticao"></canvas></div>
+              </article>
+            </section>
+
+            <section class="table-card">
+              <div class="table-header">
+                <div>
+                  <h3>Leads Repetidos</h3>
+                  <p>Referências que voltaram a aparecer em mais do que uma campanha.</p>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Referência</th>
+                      <th>Campanha 1</th>
+                      <th>Campanha 2</th>
+                      <th>Campanha 3</th>
+                      <th>Campanha 4</th>
+                      <th>Campanha 5</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableDuplicadosCampanhas"></tbody>
+                </table>
+              </div>
+              <div class="table-footer"><span id="campaignsTableCount"></span></div>
+            </section>
+          </article>
+        </section>
+
+<section class="tab-panel" id="tab-pipeline-etapas">
+          <article class="content-card">
+            <div class="card-heading"><div><div class="section-tag">Separador 7</div><h2>Pipeline / Etapas</h2><p>Separador reservado para funil, tempos médios e taxa de perda.</p></div></div>
+            <div class="placeholder-grid">
+              <div class="placeholder-box featured"><span class="placeholder-label">Etapas únicas</span><strong id="countEtapasTab">0</strong><p>etapas atualmente identificadas no Excel.</p></div>
+              <div class="placeholder-box"><h3>Próximo passo</h3><p>Depois pode receber funil real por etapa e análise de conversão.</p></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="tab-panel" id="tab-zonas-geografia">
+          <article class="content-card">
+            <div class="card-heading"><div><div class="section-tag">Separador 8</div><h2>Zonas / Geografia</h2><p>Separador autónomo para distribuição territorial e leitura geográfica.</p></div></div>
+            <div class="placeholder-grid">
+              <div class="placeholder-box featured"><span class="placeholder-label">Zonas únicas</span><strong id="countGeoTab">0</strong><p>zonas distintas identificadas na base.</p></div>
+              <div class="placeholder-box"><h3>Próximo passo</h3><p>Pode receber ranking por zona, cobertura e leitura territorial.</p></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="tab-panel" id="tab-processos-imoveis-arquivo">
+          <article class="content-card">
+            <div class="card-heading"><div><div class="section-tag">Separador 9</div><h2>Processos de Imóveis (arquivo)</h2><p>Mantido depois de Campanhas, Pipeline / Etapas e Zonas / Geografia.</p></div></div>
+            <div class="placeholder-grid">
+              <div class="placeholder-box featured"><span class="placeholder-label">Sinal atual no Excel</span><strong id="countArquivo">0</strong><p>registos com referência a arquivo, acompanhamento ou documentação.</p></div>
+              <div class="placeholder-box"><h3>Próximo passo</h3><p>Preparado para receber lógica de arquivo e gestão documental.</p></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="tab-panel" id="tab-protocolos-parceiros">
+          <article class="content-card">
+            <div class="card-heading"><div><div class="section-tag">Separador 10</div><h2>Protocolos Parceiros de Negócio</h2><p>Último separador da navegação principal.</p></div></div>
+            <div class="placeholder-grid">
+              <div class="placeholder-box featured"><span class="placeholder-label">Sinal atual no Excel</span><strong id="countParceiros">0</strong><p>registos associados a parceiros ou campanhas dessa tipologia.</p></div>
+              <div class="placeholder-box"><h3>Próximo passo</h3><p>Pode receber protocolos, parceiros ativos e origem de negócio.</p></div>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
